@@ -5,10 +5,171 @@
     "version": "0.1.0"
   },
   "paths": {
-    "/": {
+    "/auth/jwt/login": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Auth:Jwt.Login",
+        "operationId": "auth_jwt_login_auth_jwt_login_post",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_auth_jwt_login_auth_jwt_login_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                },
+                "examples": {
+                  "LOGIN_BAD_CREDENTIALS": {
+                    "summary": "Bad credentials or the user is inactive.",
+                    "value": {
+                      "detail": "LOGIN_BAD_CREDENTIALS"
+                    }
+                  },
+                  "LOGIN_USER_NOT_VERIFIED": {
+                    "summary": "The user is not verified.",
+                    "value": {
+                      "detail": "LOGIN_USER_NOT_VERIFIED"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/jwt/logout": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Auth:Jwt.Logout",
+        "operationId": "auth_jwt_logout_auth_jwt_logout_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Missing token or inactive user."
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Register:Register",
+        "operationId": "register_register_auth_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRead"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                },
+                "examples": {
+                  "REGISTER_USER_ALREADY_EXISTS": {
+                    "summary": "A user with this email already exists.",
+                    "value": {
+                      "detail": "REGISTER_USER_ALREADY_EXISTS"
+                    }
+                  },
+                  "REGISTER_INVALID_PASSWORD": {
+                    "summary": "Password validation failed.",
+                    "value": {
+                      "detail": {
+                        "code": "REGISTER_INVALID_PASSWORD",
+                        "reason": "Password should beat least 3 characters"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/operations/albums": {
       "get": {
-        "summary": "Root",
-        "operationId": "root__get",
+        "tags": [
+          "Operation"
+        ],
+        "summary": "Get Albums",
+        "operationId": "get_albums_operations_albums_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -18,31 +179,30 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
       }
     },
-    "/{user_id}/{folder}": {
-      "get": {
-        "summary": "Get Ids By Folder",
-        "operationId": "get_ids_by_folder__user_id___folder__get",
+    "/operations/add_album": {
+      "post": {
+        "tags": [
+          "Operation"
+        ],
+        "summary": "Add Album",
+        "operationId": "add_album_operations_add_album_post",
         "parameters": [
           {
             "required": true,
             "schema": {
-              "title": "User Id",
+              "title": "Name",
               "type": "string"
             },
-            "name": "user_id",
-            "in": "path"
-          },
-          {
-            "required": true,
-            "schema": {
-              "title": "Folder",
-              "type": "string"
-            },
-            "name": "folder",
-            "in": "path"
+            "name": "name",
+            "in": "query"
           }
         ],
         "responses": {
@@ -64,40 +224,30 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
       }
     },
-    "/{user_id}/{folder}/{image}": {
-      "get": {
-        "summary": "Get Id By Image",
-        "operationId": "get_id_by_image__user_id___folder___image__get",
+    "/operations/remove_album": {
+      "post": {
+        "tags": [
+          "Operation"
+        ],
+        "summary": "Remove Album",
+        "operationId": "remove_album_operations_remove_album_post",
         "parameters": [
           {
             "required": true,
             "schema": {
-              "title": "User Id",
-              "type": "string"
+              "title": "Id Album",
+              "type": "integer"
             },
-            "name": "user_id",
-            "in": "path"
-          },
-          {
-            "required": true,
-            "schema": {
-              "title": "Folder",
-              "type": "string"
-            },
-            "name": "folder",
-            "in": "path"
-          },
-          {
-            "required": true,
-            "schema": {
-              "title": "Image",
-              "type": "string"
-            },
-            "name": "image",
-            "in": "path"
+            "name": "id_album",
+            "in": "query"
           }
         ],
         "responses": {
@@ -119,12 +269,196 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/operations/photoes": {
+      "get": {
+        "tags": [
+          "Operation"
+        ],
+        "summary": "Get Photoes",
+        "operationId": "get_photoes_operations_photoes_get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Id Album",
+              "type": "integer"
+            },
+            "name": "id_album",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/operations/add_photo": {
+      "post": {
+        "tags": [
+          "Operation"
+        ],
+        "summary": "Add Photo",
+        "operationId": "add_photo_operations_add_photo_post",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Id Album",
+              "type": "integer"
+            },
+            "name": "id_album",
+            "in": "query"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Id Photo",
+              "type": "integer"
+            },
+            "name": "id_photo",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/protected-route": {
+      "get": {
+        "summary": "Protected Route",
+        "operationId": "protected_route_protected_route_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
       }
     }
   },
   "components": {
     "schemas": {
+      "Body_auth_jwt_login_auth_jwt_login_post": {
+        "title": "Body_auth_jwt_login_auth_jwt_login_post",
+        "required": [
+          "username",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "grant_type": {
+            "title": "Grant Type",
+            "pattern": "password",
+            "type": "string"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          },
+          "password": {
+            "title": "Password",
+            "type": "string"
+          },
+          "scope": {
+            "title": "Scope",
+            "type": "string",
+            "default": ""
+          },
+          "client_id": {
+            "title": "Client Id",
+            "type": "string"
+          },
+          "client_secret": {
+            "title": "Client Secret",
+            "type": "string"
+          }
+        }
+      },
+      "ErrorModel": {
+        "title": "ErrorModel",
+        "required": [
+          "detail"
+        ],
+        "type": "object",
+        "properties": {
+          "detail": {
+            "title": "Detail",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            ]
+          }
+        }
+      },
       "HTTPValidationError": {
         "title": "HTTPValidationError",
         "type": "object",
@@ -137,6 +471,83 @@
             }
           }
         }
+      },
+      "UserCreate": {
+        "title": "UserCreate",
+        "required": [
+          "email",
+          "password",
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "password": {
+            "title": "Password",
+            "type": "string"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean",
+            "default": true
+          },
+          "is_superuser": {
+            "title": "Is Superuser",
+            "type": "boolean",
+            "default": false
+          },
+          "is_verified": {
+            "title": "Is Verified",
+            "type": "boolean",
+            "default": false
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          }
+        }
+      },
+      "UserRead": {
+        "title": "UserRead",
+        "required": [
+          "id",
+          "email",
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean",
+            "default": true
+          },
+          "is_superuser": {
+            "title": "Is Superuser",
+            "type": "boolean",
+            "default": false
+          },
+          "is_verified": {
+            "title": "Is Verified",
+            "type": "boolean",
+            "default": false
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "description": "Base User model."
       },
       "ValidationError": {
         "title": "ValidationError",
@@ -170,6 +581,13 @@
             "type": "string"
           }
         }
+      }
+    },
+    "securitySchemes": {
+      "APIKeyCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "levlafe"
       }
     }
   }

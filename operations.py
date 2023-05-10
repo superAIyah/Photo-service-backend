@@ -1,37 +1,23 @@
-from fastapi import FastAPI, APIRouter, Depends
-from fastapi_users import FastAPIUsers
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi_users import FastAPIUsers
+
+from auth.auth import auth_backend
+from auth.database import User
+from auth.manager import get_user_manager
 
 from database import get_async_session
-from auth.auth import auth_backend
-from auth.manager import get_user_manager
-from auth.schemas import UserRead, UserCreate
-from auth.database import User
-
-
-fastapi_users = FastAPIUsers[User, int](
-    get_user_manager,
-    [auth_backend],
-)
-current_user = fastapi_users.current_user()
-app = FastAPI()
-
-app.include_router(
-    fastapi_users.get_auth_router(auth_backend),
-    prefix="/auth/jwt",
-    tags=["auth"]
-)
-
-app.include_router(
-    fastapi_users.get_register_router(UserRead, UserCreate),
-    prefix="/auth",
-    tags=["auth"]
-)
 
 router = APIRouter(
     prefix="/operations",
     tags=["Operation"]
 )
+fastapi_users = FastAPIUsers[User, int](
+    get_user_manager,
+    [auth_backend],
+)
+current_user = fastapi_users.current_user()
+
 
 @router.get("/albums")
 async def get_albums(
@@ -75,7 +61,7 @@ async def add_photo(
     return "You added album ..."
 
 @router.post("/add_photo")
-async def add_photo(
+async def remove_photo(
         id_album: int,
         id_photo: int,
         session: AsyncSession = Depends(get_async_session),
@@ -83,8 +69,4 @@ async def add_photo(
 ):
     return "You added album ..."
 
-app.include_router(router)
 
-@app.get("/protected-route")
-def protected_route(user: User = Depends(current_user)):
-    return f"Hello, {user.email}"
