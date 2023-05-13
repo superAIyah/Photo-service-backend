@@ -1,0 +1,34 @@
+syntax = "proto3";
+package com.photoService.grpc;
+
+message PhotoRequest {
+    string uuid = 1;
+}
+
+message AddPhotoRequest {
+    string uuid = 1;
+    bytes image = 2;
+}
+
+message RemovePhotoRequest {
+    string uuid = 1;
+}
+
+message PhotoResponse {
+    bytes image = 1;
+}
+
+message AddPhotoResponse {
+    bool status = 1;
+    string url = 2;
+}
+
+message RemovePhotoResponse {
+    bool status = 1;
+}
+
+service Photo {
+    rpc requestPhoto(PhotoRequest) returns (PhotoResponse);
+    rpc addPhoto(AddPhotoRequest) returns (AddPhotoResponse);
+    rpc removePhoto(RemovePhotoRequest) returns (RemovePhotoResponse);
+}

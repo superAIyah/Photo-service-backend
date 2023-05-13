@@ -7,7 +7,12 @@ from auth.auth import auth_backend
 from auth.manager import get_user_manager
 from auth.schemas import UserRead, UserCreate
 from auth.database import User
+import sys
 
+sys.path.insert(0, './proto')
+from proto.grpc_client import grpc_client
+
+client = grpc_client() # gRPC S3-backend client
 
 fastapi_users = FastAPIUsers[User, int](
     get_user_manager,
@@ -33,9 +38,15 @@ router = APIRouter(
     tags=["Operation"]
 )
 
+# @app.get("/")
+# async def test():
+#     response = client.get_photo_request(uuid='pepe.png')
+#     print(response)
+#     return 'test'
+
 @app.get("/")
 async def root():
-    return "Photo service backend by @FedorX8"
+    return 'Photo service backend by @FedorX8'
 
 @router.get("/albums")
 async def get_albums(
