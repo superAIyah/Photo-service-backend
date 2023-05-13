@@ -81,7 +81,7 @@ async def add_photo(
         session: AsyncSession = Depends(get_async_session),
         user: User = Depends(current_user)
 ):
-    return "You added album ..."
+    return "You added photo ..."
 
 app.include_router(router)
 
