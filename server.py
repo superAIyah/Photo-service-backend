@@ -33,6 +33,10 @@ router = APIRouter(
     tags=["Operation"]
 )
 
+@app.get("/")
+async def root():
+    return "Photo service backend by @FedorX8"
+
 @router.get("/albums")
 async def get_albums(
         session: AsyncSession = Depends(get_async_session),
