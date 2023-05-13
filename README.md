@@ -3,7 +3,7 @@
 API for managing users photoes and albums.
 
 ## Quick start
-Build docker image from inside the `ML-Search` directory:
+Build docker image from inside the `Photo-service-backend` directory:
 ```commandline
 docker build -t backend .
 ```
