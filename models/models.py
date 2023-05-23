@@ -18,9 +18,9 @@ user = Table(
 album = Table(
     "album",
     metadata,
-    Column("id", Integer, primary_key=True),
+    Column("id", Integer, primary_key=True, autoincrement=True),
     Column("id_user", Integer, ForeignKey(user.c.id)),
-    Column("email", String, nullable=False),
+    Column("name", String, nullable=False),
     Column("uuid", String, nullable=False),
 )
 

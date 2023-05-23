@@ -6,6 +6,7 @@ from sqlalchemy import Column, String, Boolean, Integer, TIMESTAMP, ForeignKey
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
 from sqlalchemy.orm import sessionmaker
+from dataclasses import dataclass
 
 from config import DB_HOST, DB_PORT, DB_USER, DB_NAME, DB_PASS
 
@@ -34,3 +35,16 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
 
 async def get_user_db(session: AsyncSession = Depends(get_async_session)):
     yield SQLAlchemyUserDatabase(session, User)
+
+@dataclass
+class InsertAlbum():
+    id_user: int
+    name: str
+    uuid: str
+
+@dataclass
+class InsertPhoto():
+    id_user: int
+    id_album: int
+    uuid: str
+    url: str

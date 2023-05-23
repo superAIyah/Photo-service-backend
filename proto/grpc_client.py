@@ -5,7 +5,7 @@ import grpc
 
 class grpc_client():
     def __init__(self):
-        channel = grpc.insecure_channel('host.docker.internal:9009')
+        channel = grpc.insecure_channel('localhost:9009')
         self.stub = PhotoService_pb2_grpc.PhotoStub(channel)
         
     def get_photo_request(self, uuid):
