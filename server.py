@@ -128,7 +128,7 @@ async def add_photo(
     uid = str(uuid.uuid4())
     result = client.add_photo_request(uid, img_byte_arr)
     url = result.url
-    photo_insert = InsertPhoto(user.id, id_album, url, uid)
+    photo_insert = InsertPhoto(user.id, id_album, uid, url)
     stmt = insert(photo).values(photo_insert.__dict__)
     await session.execute(stmt)
     await session.commit()
