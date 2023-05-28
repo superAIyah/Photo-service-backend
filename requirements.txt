@@ -11,7 +11,8 @@ fastapi==0.95.1
 fastapi-users==10.2.0
 fastapi-users-db-sqlalchemy==5.0.0
 greenlet==2.0.2
-grpcio-tools
+grpcio==1.54.2
+grpcio-tools==1.54.2
 h11==0.14.0
 httptools==0.5.0
 idna==3.4
@@ -20,6 +21,8 @@ Mako==1.2.4
 MarkupSafe==2.1.2
 orjson==3.8.12
 passlib==1.7.4
+Pillow==9.5.0
+protobuf==4.23.1
 psycopg2-binary==2.9.6
 pycparser==2.21
 pydantic==1.10.7
