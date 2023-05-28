@@ -47,4 +47,5 @@ class InsertPhoto():
     id_user: int
     id_album: int
     uuid: str
+    name: str
     url: str

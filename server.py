@@ -1,7 +1,8 @@
-from fastapi import FastAPI, APIRouter, Depends
+from fastapi import FastAPI, APIRouter, Depends, File, UploadFile
 from fastapi_users import FastAPIUsers
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, insert, delete
+from typing import Annotated
 
 from auth.database import get_async_session
 from auth.auth import auth_backend
@@ -119,17 +120,13 @@ async def get_photoes(
 async def add_photo(
         uuid_album: str,
         name: str,
+        img: Annotated[bytes, File()],
         session: AsyncSession = Depends(get_async_session),
         user: User = Depends(current_user)
 ):
-    img = Image.open("cot.jpeg", mode='r')
-    img_byte_arr = io.BytesIO()
-    img.save(img_byte_arr, format='PNG')
-    img_byte_arr = img_byte_arr.getvalue()
-
     id_album = await get_album_id(uuid_album, session)
     uuid_photo = str(uuid.uuid4())
-    result = client.add_photo_request(uuid_photo, img_byte_arr)
+    result = client.add_photo_request(uuid_photo, img)
     url = result.url
     photo_insert = InsertPhoto(user.id, id_album, uuid_photo, name, url)
     stmt = insert(photo).values(photo_insert.__dict__)
@@ -143,6 +140,7 @@ async def remove_photo(
         session: AsyncSession = Depends(get_async_session),
         user: User = Depends(current_user)
 ):
+    client.remove_photo_request(uuid_photo)
     query = select(photo).where(photo.c.uuid == uuid_photo)
     result = await session.execute(query)
     if not len(result.mappings().all()):
