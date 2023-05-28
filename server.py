@@ -51,6 +51,13 @@ async def get_album_id(uuid_album: str, session: AsyncSession) -> int:
     result = await session.execute(query)
     return result.mappings().all()[0]["id"]
 
+
+async def get_photo_id(uuid_photo: str, session: AsyncSession) -> int:
+    query = select(photo).where(photo.c.uuid == uuid_photo)
+    result = await session.execute(query)
+    return result.mappings().all()[0]["id"]
+
+
 @app.get("/")
 async def root():
     return 'Photo service backend by @FedorX8'
@@ -72,12 +79,14 @@ async def add_album(
         session: AsyncSession = Depends(get_async_session),
         user: User = Depends(current_user)
 ):
-    uid = str(uuid.uuid4())
-    album_insert = InsertAlbum(user.id, name, uid)
+    uuid_album = str(uuid.uuid4())
+    album_insert = InsertAlbum(user.id, name, uuid_album)
     stmt = insert(album).values(album_insert.__dict__)
     await session.execute(stmt)
     await session.commit()
-    return {"status": "success", "uuid_album": uid}
+
+    id_album = get_album_id(uuid_album, session)
+    return {"status": "success", "uuid_album": uuid_album, "id_album": id_album}
 
 
 @router.post("/remove_album")
@@ -132,7 +141,9 @@ async def add_photo(
     stmt = insert(photo).values(photo_insert.__dict__)
     await session.execute(stmt)
     await session.commit()
-    return {"status": "success", "url": url, "uuid_photo": uuid_photo}
+
+    id_photo = get_photo_id(uuid_photo, session)
+    return {"status": "success", "url": url, "uuid_photo": uuid_photo, "id_photo": id_photo}
 
 @router.post("/remove_photo")
 async def remove_photo(
