@@ -85,7 +85,7 @@ async def add_album(
     await session.execute(stmt)
     await session.commit()
 
-    id_album = get_album_id(uuid_album, session)
+    id_album = await get_album_id(uuid_album, session)
     return {"status": "success", "uuid_album": uuid_album, "id_album": id_album}
 
 
