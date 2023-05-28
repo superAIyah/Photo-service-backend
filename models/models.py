@@ -31,5 +31,6 @@ photo = Table(
     Column("id_user", Integer, ForeignKey(user.c.id)),
     Column("id_album", Integer, ForeignKey(album.c.id)),
     Column("uuid", String, nullable=False),
+    Column("name", String, nullable=False),
     Column("url", String, nullable=False),
 )

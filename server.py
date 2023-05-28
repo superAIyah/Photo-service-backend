@@ -12,7 +12,6 @@ from auth.database import InsertAlbum, InsertPhoto
 from models.models import album, photo
 from PIL import Image
 import io
-import pathlib
 import sys
 import uuid
 
@@ -46,11 +45,10 @@ router = APIRouter(
 )
 
 
-# @app.get("/")
-# async def test():
-#     response = client.get_photo_request(uuid='pepe.png')
-#     print(response)
-#     return 'test'
+async def get_album_id(uuid_album: str, session: AsyncSession) -> int:
+    query = select(album).where(album.c.uuid == uuid_album)
+    result = await session.execute(query)
+    return result.mappings().all()[0]["id"]
 
 @app.get("/")
 async def root():
@@ -73,28 +71,31 @@ async def add_album(
         session: AsyncSession = Depends(get_async_session),
         user: User = Depends(current_user)
 ):
-    album_insert = InsertAlbum(user.id, name, str(uuid.uuid4()))
+    uid = str(uuid.uuid4())
+    album_insert = InsertAlbum(user.id, name, uid)
     stmt = insert(album).values(album_insert.__dict__)
     await session.execute(stmt)
     await session.commit()
-    return {"status": "success"}
+    return {"status": "success", "uuid_album": uid}
 
 
 @router.post("/remove_album")
 async def remove_album(
-        id_album: int,
+        uuid_album: str,
         session: AsyncSession = Depends(get_async_session),
         user: User = Depends(current_user)
 ):
-    query = select(album).where(album.c.id == id_album)
+    query = select(album).where(album.c.uuid == uuid_album)
     result = await session.execute(query)
-    if not len(result.mappings().all()):
+    albs = result.mappings().all()
+    if not len(albs):
         return {"status": "not in base"}
+    id_album = await get_album_id(uuid_album, session)
 
     query = select(photo).where(photo.c.id_album == id_album)
     get_result = await session.execute(query)
     for elem in get_result.mappings().all():
-        await remove_photo(elem.id, session, user)
+        await remove_photo(elem.uuid, session, user)
 
     stmt = delete(album).where(album.c.id == id_album)
     await session.execute(stmt)
@@ -104,10 +105,11 @@ async def remove_album(
 
 @router.get("/photoes")
 async def get_photoes(
-        id_album: int,
+        uuid_album: str,
         session: AsyncSession = Depends(get_async_session),
         user: User = Depends(current_user)
 ):
+    id_album = await get_album_id(uuid_album, session)
     query = select(photo).where(photo.c.id_album == id_album)
     result = await session.execute(query)
     return result.mappings().all()
@@ -115,7 +117,7 @@ async def get_photoes(
 
 @router.post("/add_photo")
 async def add_photo(
-        id_album: int,
+        uuid_album: str,
         name: str,
         session: AsyncSession = Depends(get_async_session),
         user: User = Depends(current_user)
@@ -125,26 +127,27 @@ async def add_photo(
     img.save(img_byte_arr, format='PNG')
     img_byte_arr = img_byte_arr.getvalue()
 
-    uid = str(uuid.uuid4())
-    result = client.add_photo_request(uid, img_byte_arr)
+    id_album = await get_album_id(uuid_album, session)
+    uuid_photo = str(uuid.uuid4())
+    result = client.add_photo_request(uuid_photo, img_byte_arr)
     url = result.url
-    photo_insert = InsertPhoto(user.id, id_album, uid, url)
+    photo_insert = InsertPhoto(user.id, id_album, uuid_photo, name, url)
     stmt = insert(photo).values(photo_insert.__dict__)
     await session.execute(stmt)
     await session.commit()
-    return {"status": "success"}
+    return {"status": "success", "url": url}
 
 @router.post("/remove_photo")
 async def remove_photo(
-        id_photo: int,
+        uuid_photo: str,
         session: AsyncSession = Depends(get_async_session),
         user: User = Depends(current_user)
 ):
-    query = select(photo).where(photo.c.id == id_photo)
+    query = select(photo).where(photo.c.uuid == uuid_photo)
     result = await session.execute(query)
     if not len(result.mappings().all()):
         return {"status": "not in base"}
-    stmt = delete(photo).where(photo.c.id == id_photo)
+    stmt = delete(photo).where(photo.c.uuid == uuid_photo)
     await session.execute(stmt)
     await session.commit()
     return {"status": "success"}
