@@ -142,7 +142,7 @@ async def add_photo(
     await session.execute(stmt)
     await session.commit()
 
-    id_photo = get_photo_id(uuid_photo, session)
+    id_photo = await get_photo_id(uuid_photo, session)
     return {"status": "success", "url": url, "uuid_photo": uuid_photo, "id_photo": id_photo}
 
 @router.post("/remove_photo")
